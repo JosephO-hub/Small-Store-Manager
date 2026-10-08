@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StoreShift Planner - Weekly Schedule</title>
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --border-focus: #3b82f6;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --success: #16a34a;
+      --success-light: #f0fdf4;
+      --warning: #d97706;
+      --warning-light: #fffbeb;
+      --danger: #dc2626;
+      --danger-light: #fef2f2;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 16px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      background: var(--card-bg);
+      padding: 20px 24px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+
+    .header-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-title .badge {
+      font-size: 0.75rem;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .description {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+      background-color: #fff;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-outline {
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+    .btn-outline:hover {
+      background-color: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .btn-danger-outline {
+      border-color: #fecaca;
+      color: var(--danger);
+      background-color: #fff;
+    }
+    .btn-danger-outline:hover {
+      background-color: var(--danger-light);
+    }
+
+    /* Friendly Alerts & Notifications */
+    .alert-container {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.4;
+    }
+
+    .alert-warning {
+      background-color: var(--warning-light);
+      border: 1px solid #fde68a;
+      color: #92400e;
+    }
+
+    .alert-success {
+      background-color: var(--success-light);
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+
+    .alert-danger {
+      background-color: var(--danger-light);
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+
+    .alert-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .alert-list {
+      list-style-type: disc;
+      margin-left: 20px;
+      margin-top: 4px;
+    }
+
+    /* Week Info & Target Controls */
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: var(--card-bg);
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      margin-bottom: 20px;
+    }
+
+    .week-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: var(--text-main);
+      flex-wrap: wrap;
+    }
+
+    .nav-arrow-btn {
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      line-height: 1;
+    }
+
+    .copy-week-btn {
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      gap: 5px;
+    }
+
+    .week-nav input[type="date"] {
+      padding: 6px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.875rem;
+      color: var(--text-main);
+    }
+
+    .min-coverage-indicator {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Employee Summary Cards */
+    .employee-cards-section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .employee-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .emp-summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .emp-summary-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .emp-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .emp-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .emp-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .emp-rename-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .emp-rename-btn:hover {
+      background-color: #f1f5f9;
+      color: var(--text-main);
+    }
+
+    .emp-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .emp-hours-val {
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .progress-bar-bg {
+      height: 6px;
+      background-color: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    /* Schedule View Selector (Laptop / Mobile Responsive) */
+    .view-toggle {
+      display: flex;
+      gap: 4px;
+      background: #e2e8f0;
+      padding: 3px;
+      border-radius: var(--radius-sm);
+    }
+
+    .view-toggle button {
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .view-toggle button.active {
+      background: white;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Desktop Schedule Table */
+    .table-container {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table.schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+      font-size: 0.875rem;
+    }
+
+    .schedule-table th, 
+    .schedule-table td {
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    .schedule-table th {
+      background-color: #f8fafc;
+      font-weight: 600;
+      color: var(--text-main);
+      text-align: center;
+    }
+
+    .schedule-table th.emp-col {
+      width: 170px;
+      text-align: left;
+      padding-left: 14px;
+    }
+
+    .schedule-table th .day-name {
+      font-size: 0.95rem;
+    }
+
+    .schedule-table th .day-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: normal;
+    }
+
+    .schedule-table td.emp-name-cell {
+      background-color: #ffffff;
+      font-weight: 600;
+      position: sticky;
+      left: 0;
+      z-index: 2;
+    }
+
+    .emp-name-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .emp-name-total {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: normal;
+    }
+
+    /* Shift Cell & Pill */
+    .shift-cell {
+      height: 72px;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+      position: relative;
+      background-color: #ffffff;
+      padding: 6px !important;
+    }
+
+    .shift-cell:hover {
+      background-color: #f8fafc;
+    }
+
+    .shift-pill {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      border: 1px solid transparent;
+      user-select: none;
+    }
+
+    .shift-pill-title {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .shift-pill-time {
+      font-size: 0.7rem;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    .shift-pill-hours {
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    /* Shift Color Styles */
+    .shift-off {
+      background-color: #f1f5f9;
+      color: #64748b;
+      border-color: #e2e8f0;
+    }
+
+    .shift-morning {
+      background-color: #e0f2fe;
+      color: #0369a1;
+      border-color: #bae6fd;
+    }
+
+    .shift-afternoon {
+      background-color: #fef3c7;
+      color: #b45309;
+      border-color: #fde68a;
+    }
+
+    .shift-full {
+      background-color: #dcfce7;
+      color: #15803d;
+      border-color: #bbf7d0;
+    }
+
+    .shift-custom {
+      background-color: #f3e8ff;
+      color: #7e22ce;
+      border-color: #e9d5ff;
+    }
+
+    /* Daily coverage footer row */
+    .coverage-row th {
+      background-color: #f1f5f9;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 8px 6px;
+    }
+
+    .coverage-count {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .coverage-low {
+      color: var(--danger);
+    }
+
+    /* Mobile Day Card View */
+    .mobile-schedule-container {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .mobile-day-tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+    }
+
+    .mobile-day-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mobile-day-tab {
+      flex: 0 0 auto;
+      padding: 8px 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .mobile-day-tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .mobile-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mobile-emp-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .mobile-emp-row:last-child {
+      border-bottom: none;
+    }
+
+    .mobile-emp-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mobile-shift-select-btn {
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      min-width: 130px;
+      text-align: right;
+      cursor: pointer;
+    }
+
+    /* Modal / Popups */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(15, 23, 42, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-dialog {
+      background: white;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      overflow: hidden;
+      transform: translateY(10px);
+      transition: transform 0.2s ease;
+    }
+
+    .modal-backdrop.open .modal-dialog {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .shift-presets-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .preset-option-btn {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      text-align: left;
+      transition: all 0.1s ease;
+    }
+
+    .preset-option-btn:hover {
+      border-color: var(--primary);
+      background-color: var(--primary-light);
+    }
+
+    .preset-option-btn.selected {
+      border-color: var(--primary);
+      background-color: var(--primary-light);
+      font-weight: 600;
+    }
+
+    .custom-time-inputs {
+      background: #f8fafc;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      margin-top: 10px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .form-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-group input {
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      font-size: 0.875rem;
+    }
+
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: #f8fafc;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      color: white;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: white !important;
+        padding: 0 !important;
+      }
+      .header-actions,
+      .controls-bar,
+      .view-toggle,
+      .alert-container,
+      .emp-rename-btn,
+      .modal-backdrop,
+      .toast {
+        display: none !important;
+      }
+      header {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 10px 0 !important;
+        margin-bottom: 10px !important;
+      }
+      .table-container {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        overflow: visible !important;
+      }
+      table.schedule-table {
+        min-width: 100% !important;
+      }
+      .schedule-table th, 
+      .schedule-table td {
+        border: 1px solid #333 !important;
+        padding: 6px !important;
+      }
+      .shift-cell {
+        height: auto !important;
+      }
+      .shift-pill {
+        border: 1px solid #666 !important;
+        background: transparent !important;
+        color: #000 !important;
+      }
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+      header {
+        padding: 16px;
+      }
+      .brand-title {
+        font-size: 1.25rem;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: stretch;
+      }
+      .header-actions .btn {
+        flex: 1 1 calc(50% - 8px);
+        font-size: 0.8rem;
+        padding: 8px 10px;
+      }
+      .table-container {
+        display: none; /* Default to mobile view on phones */
+      }
+      .mobile-schedule-container {
+        display: flex;
+      }
+      .desktop-view-active .table-container {
+        display: block;
+      }
+      .desktop-view-active .mobile-schedule-container {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="header-top">
+        <div>
+          <div class="brand-title">
+            <span>🛒 StoreShift Planner</span>
+            <span class="badge">Small Store Edition</span>
+          </div>
+          <p class="description">
+            A lightweight scheduling tool to plan, balance, and print weekly shifts for your five store employees with zero hassle.
+          </p>
+          <div id="headerWeekLabel" style="font-size: 0.85rem; color: var(--primary); font-weight: 600; margin-top: 4px;"></div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="window.print()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+            Print Roster
+          </button>
+          <button class="btn btn-outline" onclick="copyScheduleSummary()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy Text Roster
+          </button>
+          <button class="btn btn-outline" onclick="fillBalancedTemplate()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Auto-Fill Example
+          </button>
+          <button class="btn btn-danger-outline" onclick="confirmResetSchedule()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Reset Week
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Friendly Alerts & Warnings Banner -->
+    <div id="alertsContainer" class="alert-container">
+      <!-- Populated dynamically -->
+    </div>
+
+    <!-- Week & Controls Bar -->
+    <div class="controls-bar">
+      <div class="week-nav">
+        <button class="btn btn-outline nav-arrow-btn" type="button" onclick="navigateWeek(-1)" title="Previous week">◀</button>
+        <label for="weekStartDate">Week Commencing:</label>
+        <input type="date" id="weekStartDate" onchange="handleWeekStartDateChange(this.value)">
+        <button class="btn btn-outline nav-arrow-btn" type="button" onclick="navigateWeek(1)" title="Next week">▶</button>
+        <button class="btn btn-outline copy-week-btn" type="button" onclick="copyFromPreviousWeek()" title="Copy schedule from previous week">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
+          Copy Last Week
+        </button>
+      </div>
+
+      <div class="min-coverage-indicator">
+        <span>Target: <strong>Max 40h</strong>/employee</span>
+        <span>•</span>
+        <span>Store Goal: <strong>At least 2 staff/day</strong></span>
+      </div>
+
+      <div class="view-toggle" id="viewToggleGroup">
+        <button id="viewBtnMobile" class="active" onclick="switchView('mobile')">Day View</button>
+        <button id="viewBtnMatrix" onclick="switchView('matrix')">Full Grid</button>
+      </div>
+    </div>
+
+    <!-- Employee Summary Cards -->
+    <section class="employee-cards-section">
+      <div class="section-title">
+        <span>Team Hours Summary (5 Employees)</span>
+        <span style="font-size:0.75rem; text-transform:none; font-weight:normal;">Tap pencil to rename</span>
+      </div>
+      <div class="employee-grid" id="employeeCardsGrid">
+        <!-- Generated by JS -->
+      </div>
+    </section>
+
+    <!-- Desktop Grid Schedule -->
+    <div class="table-container" id="matrixViewContainer">
+      <table class="schedule-table">
+        <thead>
+          <tr id="scheduleHeaderRow">
+            <th class="emp-col">Staff Member</th>
+            <!-- Day columns populated dynamically -->
+          </tr>
+        </thead>
+        <tbody id="scheduleTableBody">
+          <!-- Populated by JS -->
+        </tbody>
+        <tfoot>
+          <tr class="coverage-row" id="coverageFooterRow">
+            <th>Daily Coverage</th>
+            <!-- Populated by JS -->
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Mobile Day-by-Day Schedule -->
+    <div class="mobile-schedule-container" id="mobileViewContainer">
+      <div class="mobile-day-tabs" id="mobileDayTabs">
+        <!-- Generated by JS -->
+      </div>
+      <div class="mobile-card" id="mobileDayCard">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Shift Edit Modal -->
+  <div class="modal-backdrop" id="shiftModal" onclick="handleBackdropClick(event)">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="modalShiftTitle">Set Shift</h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted);" id="modalShiftSubtitle"></p>
+        </div>
+        <button class="modal-close-btn" onclick="closeShiftModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="shift-presets-list" id="shiftPresetButtons">
+          <!-- Preset buttons -->
+        </div>
+
+        <div class="custom-time-inputs" id="customTimeBox" style="display:none;">
+          <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 8px;">Custom Shift Hours</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="customStart">Start Time</label>
+              <input type="time" id="customStart" value="10:00" onchange="updateCustomPreview()">
+            </div>
+            <div class="form-group">
+              <label for="customEnd">End Time</label>
+              <input type="time" id="customEnd" value="16:00" onchange="updateCustomPreview()">
+            </div>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);" id="customHoursPreview">
+            Calculated: 6.0 hours
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeShiftModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveActiveShift()">Apply Shift</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rename Employee Modal -->
+  <div class="modal-backdrop" id="renameModal" onclick="handleBackdropClick(event)">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Rename Employee</h3>
+        <button class="modal-close-btn" onclick="closeRenameModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="renameInput">Employee Name</label>
+          <input type="text" id="renameInput" maxlength="25" placeholder="e.g. Sarah">
+        </div>
+        <div id="renameErrorMsg" style="color: var(--danger); font-size: 0.8rem; margin-top: 6px; display: none;">
+          Please provide a valid name (at least 2 characters).
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeRenameModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitEmployeeRename()">Save Name</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <span id="toastIcon">ℹ️</span>
+    <span id="toastText">Action completed successfully</span>
+  </div>
+
+  <script>
+    /* =====================================================================
+       StoreShift Planner - Pure Vanilla JS Scheduling Engine
+       ===================================================================== */
+
+    // Constants & Default Definitions
+    const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const SHORT_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+    const EMPLOYEE_COLORS = [
+      { bg: "#3b82f6", light: "#eff6ff", text: "#1d4ed8", name: "Blue" },
+      { bg: "#10b981", light: "#ecfdf5", text: "#047857", name: "Emerald" },
+      { bg: "#8b5cf6", light: "#f5f3ff", text: "#6d28d9", name: "Purple" },
+      { bg: "#f59e0b", light: "#fffbeb", text: "#b45309", name: "Amber" },
+      { bg: "#ec4899", light: "#fdf2f8", text: "#be185d", name: "Pink" }
+    ];
+
+    const PRESET_SHIFTS = [
+      { id: "off", name: "Day Off", label: "Off", hours: 0, time: "—", className: "shift-off" },
+      { id: "morning", name: "Morning Shift", label: "Morning", hours: 6, time: "8:00 AM – 2:00 PM", className: "shift-morning" },
+      { id: "afternoon", name: "Afternoon Shift", label: "Afternoon", hours: 6, time: "2:00 PM – 8:00 PM", className: "shift-afternoon" },
+      { id: "full", name: "Full Day Shift", label: "Full Day", hours: 8, time: "9:00 AM – 5:00 PM", className: "shift-full" },
+      { id: "custom", name: "Custom Shift", label: "Custom", hours: 0, time: "Flexible", className: "shift-custom" }
+    ];
+
+    const STORAGE_KEY = "storeshift_planner_data_v1";
+
+    // Helper: Compute Monday (YYYY-MM-DD) for any date string or Date object
+    function getMondayOfDate(input) {
+      let d;
+      if (!input) {
+        d = new Date();
+      } else if (typeof input === "string") {
+        const parts = input.split("-");
+        if (parts.length === 3) {
+          d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        } else {
+          d = new Date(input);
+        }
+      } else {
+        d = new Date(input);
+      }
+
+      if (isNaN(d.getTime())) {
+        d = new Date();
+      }
+
+      const day = d.getDay(); // 0 is Sunday, 1 is Monday...
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(d.getFullYear(), d.getMonth(), diff);
+      monday.setHours(0, 0, 0, 0);
+
+      const y = monday.getFullYear();
+      const m = String(monday.getMonth() + 1).padStart(2, "0");
+      const dayStr = String(monday.getDate()).padStart(2, "0");
+      return `${y}-${m}-${dayStr}`;
+    }
+
+    // Application State
+    let appState = {
+      weekStartDate: getMondayOfDate(new Date()),
+      employees: [
+        { id: "emp_1", name: "Alex Rivera", targetHours: 40, color: EMPLOYEE_COLORS[0] },
+        { id: "emp_2", name: "Jordan Lee", targetHours: 40, color: EMPLOYEE_COLORS[1] },
+        { id: "emp_3", name: "Taylor Swift", targetHours: 40, color: EMPLOYEE_COLORS[2] },
+        { id: "emp_4", name: "Morgan Chen", targetHours: 40, color: EMPLOYEE_COLORS[3] },
+        { id: "emp_5", name: "Sam Davis", targetHours: 40, color: EMPLOYEE_COLORS[4] }
+      ],
+      // weeklySchedules[weekStartDate][empId][dayIndex] = { type, hours, timeStr, customStart?, customEnd? }
+      weeklySchedules: {},
+      selectedDayIndex: 0 // for mobile day tabs
+    };
+
+    // Return the schedule for the currently active week.
+    // If not yet created, automatically starts fresh with no scheduled time (all off).
+    function getCurrentWeekSchedule() {
+      if (!appState.weeklySchedules) {
+        appState.weeklySchedules = {};
+      }
+      const weekKey = appState.weekStartDate;
+      if (!appState.weeklySchedules[weekKey]) {
+        appState.weeklySchedules[weekKey] = {};
+        appState.employees.forEach(emp => {
+          appState.weeklySchedules[weekKey][emp.id] = {};
+          for (let day = 0; day < 7; day++) {
+            appState.weeklySchedules[weekKey][emp.id][day] = {
+              type: "off",
+              hours: 0,
+              timeStr: "—"
+            };
+          }
+        });
+      } else {
+        // Ensure all 5 employees have entries
+        appState.employees.forEach(emp => {
+          if (!appState.weeklySchedules[weekKey][emp.id]) {
+            appState.weeklySchedules[weekKey][emp.id] = {};
+          }
+          for (let day = 0; day < 7; day++) {
+            if (!appState.weeklySchedules[weekKey][emp.id][day]) {
+              appState.weeklySchedules[weekKey][emp.id][day] = {
+                type: "off",
+                hours: 0,
+                timeStr: "—"
+              };
+            }
+          }
+        });
+      }
+      return appState.weeklySchedules[weekKey];
+    }
+
+    // Accessor: dynamically routes any access to appState.schedule to the active week
+    Object.defineProperty(appState, "schedule", {
+      get() {
+        return getCurrentWeekSchedule();
+      },
+      enumerable: true,
+      configurable: true
+    });
+
+    // Modal Editing State
+    let activeEdit = {
+      empId: null,
+      dayIndex: null,
+      selectedPreset: "morning",
+      customStart: "10:00",
+      customEnd: "16:00"
+    };
+
+    let activeRenameEmpId = null;
+
+    // Initialize State & Storage
+    function init() {
+      loadFromStorage();
+      ensureScheduleData();
+
+      // Set input date
+      const dateInput = document.getElementById("weekStartDate");
+      if (dateInput) {
+        dateInput.value = appState.weekStartDate;
+      }
+
+      renderAll();
+    }
+
+    function ensureScheduleData() {
+      getCurrentWeekSchedule();
+    }
+
+    function saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (err) {
+        showToast("Friendly warning: Could not save to browser storage.", "⚠️");
+      }
+    }
+
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.employees) && parsed.employees.length === 5) {
+            appState.employees = parsed.employees;
+            appState.weekStartDate = getMondayOfDate(parsed.weekStartDate || new Date());
+            appState.selectedDayIndex = parsed.selectedDayIndex || 0;
+            appState.weeklySchedules = parsed.weeklySchedules || {};
+
+            // Migrate legacy single-week data if present
+            if (parsed.schedule && (!parsed.weeklySchedules || Object.keys(parsed.weeklySchedules).length === 0)) {
+              appState.weeklySchedules[appState.weekStartDate] = parsed.schedule;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Storage reset to defaults due to invalid structure.", e);
+      }
+    }
+
+    // Calculate dates for column headers
+    function getWeekDates() {
+      const dates = [];
+      const parts = appState.weekStartDate.split("-");
+      const baseDate = new Date(parts[0], parts[1] - 1, parts[2]);
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(baseDate);
+        d.setDate(baseDate.getDate() + i);
+        dates.push(d);
+      }
+      return dates;
+    }
+
+    function formatShortDate(d) {
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return `${monthNames[d.getMonth()]} ${d.getDate()}`;
+    }
+
+    // Calculations
+    function getEmployeeWeeklyHours(empId) {
+      let total = 0;
+      for (let day = 0; day < 7; day++) {
+        const shift = appState.schedule[empId]?.[day];
+        if (shift && shift.hours) {
+          total += Number(shift.hours);
+        }
+      }
+      return Math.round(total * 10) / 10;
+    }
+
+    function getEmployeeConsecutiveDays(empId) {
+      let consecutive = 0;
+      let maxConsecutive = 0;
+      let workingDays = 0;
+      for (let day = 0; day < 7; day++) {
+        const shift = appState.schedule[empId]?.[day];
+        if (shift && shift.type !== "off" && shift.hours > 0) {
+          consecutive++;
+          workingDays++;
+          if (consecutive > maxConsecutive) maxConsecutive = consecutive;
+        } else {
+          consecutive = 0;
+        }
+      }
+      return { maxConsecutive, workingDays };
+    }
+
+    function getDailyCoverage(dayIndex) {
+      let count = 0;
+      let morningCount = 0;
+      let afternoonCount = 0;
+      let fullCount = 0;
+
+      appState.employees.forEach(emp => {
+        const shift = appState.schedule[emp.id]?.[dayIndex];
+        if (shift && shift.type !== "off" && shift.hours > 0) {
+          count++;
+          if (shift.type === "morning") morningCount++;
+          if (shift.type === "afternoon") afternoonCount++;
+          if (shift.type === "full") fullCount++;
+        }
+      });
+
+      return { count, morningCount, afternoonCount, fullCount };
+    }
+
+    function updateHeaderWeekLabel() {
+      const el = document.getElementById("headerWeekLabel");
+      if (!el) return;
+      const weekDates = getWeekDates();
+      const first = weekDates[0];
+      const last = weekDates[6];
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      el.textContent = `Active Week: ${monthNames[first.getMonth()]} ${first.getDate()}, ${first.getFullYear()} – ${monthNames[last.getMonth()]} ${last.getDate()}, ${last.getFullYear()}`;
+    }
+
+    // Rendering Engine
+    function renderAll() {
+      updateHeaderWeekLabel();
+      renderAlerts();
+      renderEmployeeCards();
+      renderDesktopTable();
+      renderMobileView();
+      saveToStorage();
+    }
+
+    // Friendly Alerts & Tips
+    function renderAlerts() {
+      const container = document.getElementById("alertsContainer");
+      container.innerHTML = "";
+
+      // Check if entire week is completely empty (no hours scheduled yet)
+      let totalHoursInWeek = 0;
+      appState.employees.forEach(emp => {
+        totalHoursInWeek += getEmployeeWeeklyHours(emp.id);
+      });
+
+      if (totalHoursInWeek === 0) {
+        const weekDates = getWeekDates();
+        const emptyDiv = document.createElement("div");
+        emptyDiv.className = "alert alert-warning";
+        emptyDiv.style.backgroundColor = "#f0f9ff";
+        emptyDiv.style.borderColor = "#bae6fd";
+        emptyDiv.style.color = "#0369a1";
+        emptyDiv.innerHTML = `
+          <div class="alert-icon">📅</div>
+          <div>
+            <div style="font-weight: 700;">New Blank Week Commencing ${formatShortDate(weekDates[0])}</div>
+            <div>No shifts have been scheduled for this week yet. Tap any shift cell to schedule an employee, click <strong>"Auto-Fill Example"</strong> to test a balanced schedule, or use <strong>"Copy Last Week"</strong> to pull forward previous shifts.</div>
+          </div>
+        `;
+        container.appendChild(emptyDiv);
+        return;
+      }
+
+      const warnings = [];
+      const tips = [];
+
+      // 1. Overtime validation (> 40h) & low hours (< 20h)
+      appState.employees.forEach(emp => {
+        const hrs = getEmployeeWeeklyHours(emp.id);
+        if (hrs > 40) {
+          warnings.push(`<strong>${emp.name}</strong> is scheduled for <strong>${hrs} hrs</strong> (exceeds the 40-hour weekly standard by ${Math.round((hrs - 40)*10)/10} hrs). Consider rebalancing.`);
+        } else if (hrs === 0) {
+          tips.push(`<strong>${emp.name}</strong> has no shifts assigned this week.`);
+        }
+
+        const streak = getEmployeeConsecutiveDays(emp.id);
+        if (streak.workingDays === 7) {
+          warnings.push(`<strong>${emp.name}</strong> is scheduled for all 7 days with zero rest days. We recommend at least 1 day off to prevent fatigue.`);
+        }
+      });
+
+      // 2. Daily coverage check (< 2 staff)
+      const weekDates = getWeekDates();
+      for (let d = 0; d < 7; d++) {
+        const cov = getDailyCoverage(d);
+        if (cov.count === 0) {
+          warnings.push(`<strong>${DAYS_OF_WEEK[d]} (${formatShortDate(weekDates[d])})</strong> has <strong>no employees</strong> scheduled. Store will be unattended!`);
+        } else if (cov.count === 1) {
+          warnings.push(`<strong>${DAYS_OF_WEEK[d]} (${formatShortDate(weekDates[d])})</strong> only has <strong>1 employee</strong> scheduled. A second staff member is recommended for coverage.`);
+        }
+      }
+
+      // Render Warning Card if any
+      if (warnings.length > 0) {
+        const warnDiv = document.createElement("div");
+        warnDiv.className = "alert alert-warning";
+        warnDiv.innerHTML = `
+          <div class="alert-icon">⚠️</div>
+          <div>
+            <div style="font-weight: 700;">Friendly Schedule Reminders (${warnings.length})</div>
+            <ul class="alert-list">
+              ${warnings.map(w => `<li>${w}</li>`).join("")}
+            </ul>
+          </div>
+        `;
+        container.appendChild(warnDiv);
+      }
+
+      // Render Tips Card if any (e.g. unassigned staff)
+      if (tips.length > 0) {
+        const tipsDiv = document.createElement("div");
+        tipsDiv.className = "alert alert-warning";
+        tipsDiv.style.backgroundColor = "#f0f9ff";
+        tipsDiv.style.borderColor = "#bae6fd";
+        tipsDiv.style.color = "#0369a1";
+        tipsDiv.innerHTML = `
+          <div class="alert-icon">💡</div>
+          <div>
+            <div style="font-weight: 700;">Friendly Tips</div>
+            <ul class="alert-list">
+              ${tips.map(t => `<li>${t}</li>`).join("")}
+            </ul>
+          </div>
+        `;
+        container.appendChild(tipsDiv);
+      }
+
+      // Render Success Banner if clean
+      if (warnings.length === 0 && tips.length === 0) {
+        const successDiv = document.createElement("div");
+        successDiv.className = "alert alert-success";
+        successDiv.innerHTML = `
+          <div class="alert-icon">✨</div>
+          <div>
+            <strong>Great job!</strong> Your schedule has healthy staffing coverage and no overtime conflicts for all five employees.
+          </div>
+        `;
+        container.appendChild(successDiv);
+      }
+    }
+
+    // Employee Cards
+    function renderEmployeeCards() {
+      const grid = document.getElementById("employeeCardsGrid");
+      grid.innerHTML = "";
+
+      appState.employees.forEach(emp => {
+        const hours = getEmployeeWeeklyHours(emp.id);
+        const pct = Math.min(100, Math.round((hours / emp.targetHours) * 100));
+        const isOver = hours > emp.targetHours;
+
+        const card = document.createElement("div");
+        card.className = "emp-summary-card";
+        card.innerHTML = `
+          <div class="emp-card-header">
+            <span class="emp-badge">
+              <span class="emp-dot" style="background-color: ${emp.color.bg};"></span>
+              <span>${escapeHtml(emp.name)}</span>
+            </span>
+            <button class="emp-rename-btn" onclick="openRenameModal('${emp.id}')" title="Rename Employee">
+              ✏️
+            </button>
+          </div>
+          <div class="emp-stats">
+            <span>Weekly Hours</span>
+            <span class="emp-hours-val" style="color: ${isOver ? 'var(--danger)' : 'var(--text-main)'}">
+              ${hours} / ${emp.targetHours}h
+            </span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: ${pct}%; background-color: ${isOver ? 'var(--danger)' : emp.color.bg};"></div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Desktop Table
+    function renderDesktopTable() {
+      const headerRow = document.getElementById("scheduleHeaderRow");
+      const tbody = document.getElementById("scheduleTableBody");
+      const footerRow = document.getElementById("coverageFooterRow");
+      const weekDates = getWeekDates();
+
+      // Clear existing except first th
+      while (headerRow.children.length > 1) {
+        headerRow.removeChild(headerRow.lastChild);
+      }
+      tbody.innerHTML = "";
+      while (footerRow.children.length > 1) {
+        footerRow.removeChild(footerRow.lastChild);
+      }
+
+      // Render Day Headers
+      DAYS_OF_WEEK.forEach((dayName, idx) => {
+        const th = document.createElement("th");
+        th.innerHTML = `
+          <div class="day-name">${dayName}</div>
+          <div class="day-date">${formatShortDate(weekDates[idx])}</div>
+        `;
+        headerRow.appendChild(th);
+      });
+
+      // Render Employee Rows
+      appState.employees.forEach(emp => {
+        const tr = document.createElement("tr");
+
+        // Employee Column
+        const empTd = document.createElement("td");
+        empTd.className = "emp-name-cell";
+        const empHours = getEmployeeWeeklyHours(emp.id);
+        empTd.innerHTML = `
+          <div class="emp-name-content">
+            <div class="emp-badge">
+              <span class="emp-dot" style="background-color: ${emp.color.bg};"></span>
+              <span>${escapeHtml(emp.name)}</span>
+            </div>
+            <div class="emp-name-total">${empHours} hrs scheduled</div>
+          </div>
+        `;
+        tr.appendChild(empTd);
+
+        // Day Shift Cells
+        for (let d = 0; d < 7; d++) {
+          const td = document.createElement("td");
+          td.className = "shift-cell";
+          const shift = appState.schedule[emp.id][d];
+          const preset = getPresetById(shift.type);
+
+          td.onclick = () => openShiftModal(emp.id, d);
+
+          td.innerHTML = `
+            <div class="shift-pill ${preset.className}">
+              <div class="shift-pill-title">
+                <span>${escapeHtml(preset.label)}</span>
+                <span class="shift-pill-hours">${shift.hours > 0 ? shift.hours + 'h' : ''}</span>
+              </div>
+              <div class="shift-pill-time">${shift.type === 'off' ? 'Off' : escapeHtml(shift.timeStr || preset.time)}</div>
+            </div>
+          `;
+          tr.appendChild(td);
+        }
+
+        tbody.appendChild(tr);
+      });
+
+      // Render Footer Coverage Row
+      for (let d = 0; d < 7; d++) {
+        const th = document.createElement("th");
+        const cov = getDailyCoverage(d);
+        const isLow = cov.count < 2;
+        th.innerHTML = `
+          <div class="coverage-count ${isLow ? 'coverage-low' : ''}">${cov.count} Staff</div>
+          <div style="font-size: 0.7rem; font-weight: normal;">
+            ${cov.count === 0 ? 'Closed / 0' : (cov.count === 1 ? 'Understaffed' : 'Covered')}
+          </div>
+        `;
+        footerRow.appendChild(th);
+      }
+    }
+
+    // Mobile View
+    function renderMobileView() {
+      const tabs = document.getElementById("mobileDayTabs");
+      const card = document.getElementById("mobileDayCard");
+      const weekDates = getWeekDates();
+
+      tabs.innerHTML = "";
+      DAYS_OF_WEEK.forEach((day, idx) => {
+        const btn = document.createElement("button");
+        btn.className = `mobile-day-tab ${idx === appState.selectedDayIndex ? 'active' : ''}`;
+        btn.innerHTML = `<div>${SHORT_DAYS[idx]}</div><div style="font-size:0.7rem;">${weekDates[idx].getDate()}</div>`;
+        btn.onclick = () => {
+          appState.selectedDayIndex = idx;
+          renderMobileView();
+        };
+        tabs.appendChild(btn);
+      });
+
+      const dayIdx = appState.selectedDayIndex;
+      const cov = getDailyCoverage(dayIdx);
+
+      let cardHtml = `
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          <div>
+            <h3 style="font-size: 1.1rem; font-weight: 700;">${DAYS_OF_WEEK[dayIdx]}</h3>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">${formatShortDate(weekDates[dayIdx])}</span>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-weight: 700; color: ${cov.count < 2 ? 'var(--danger)' : 'var(--success)'};">${cov.count} Staff Scheduled</span>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${cov.count < 2 ? '⚠️ Needs attention' : '✓ Good coverage'}</div>
+          </div>
+        </div>
+        <div class="mobile-emp-list">
+      `;
+
+      appState.employees.forEach(emp => {
+        const shift = appState.schedule[emp.id][dayIdx];
+        const preset = getPresetById(shift.type);
+
+        cardHtml += `
+          <div class="mobile-emp-row">
+            <div class="mobile-emp-info">
+              <span class="emp-dot" style="background-color: ${emp.color.bg};"></span>
+              <div>
+                <div style="font-weight: 600; font-size: 0.9rem;">${escapeHtml(emp.name)}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${getEmployeeWeeklyHours(emp.id)}h total this week</div>
+              </div>
+            </div>
+            <button class="mobile-shift-select-btn shift-pill ${preset.className}" onclick="openShiftModal('${emp.id}', ${dayIdx})">
+              <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <span>${preset.label}</span>
+                <span>${shift.hours > 0 ? shift.hours + 'h' : ''}</span>
+              </div>
+              <div style="font-size: 0.7rem; opacity: 0.85;">${shift.type === 'off' ? 'Tap to assign' : shift.timeStr}</div>
+            </button>
+          </div>
+        `;
+      });
+
+      cardHtml += `</div>`;
+      card.innerHTML = cardHtml;
+    }
+
+    // Modal Operations for Shifts
+    function openShiftModal(empId, dayIndex) {
+      activeEdit.empId = empId;
+      activeEdit.dayIndex = dayIndex;
+
+      const emp = appState.employees.find(e => e.id === empId);
+      const currentShift = appState.schedule[empId][dayIndex];
+      const weekDates = getWeekDates();
+
+      document.getElementById("modalShiftTitle").textContent = `Assign Shift: ${emp.name}`;
+      document.getElementById("modalShiftSubtitle").textContent = `${DAYS_OF_WEEK[dayIndex]}, ${formatShortDate(weekDates[dayIndex])}`;
+
+      activeEdit.selectedPreset = currentShift.type;
+      if (currentShift.type === "custom") {
+        activeEdit.customStart = currentShift.customStart || "10:00";
+        activeEdit.customEnd = currentShift.customEnd || "16:00";
+      }
+
+      renderShiftPresetButtons();
+      updateCustomVisibility();
+
+      document.getElementById("shiftModal").classList.add("open");
+    }
+
+    function renderShiftPresetButtons() {
+      const container = document.getElementById("shiftPresetButtons");
+      container.innerHTML = "";
+
+      PRESET_SHIFTS.forEach(preset => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `preset-option-btn ${preset.id === activeEdit.selectedPreset ? 'selected' : ''}`;
+        btn.innerHTML = `
+          <div>
+            <div style="font-weight: 600;">${preset.name}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${preset.time}</div>
+          </div>
+          <div style="font-weight: 700; font-size: 0.85rem;">
+            ${preset.hours > 0 ? preset.hours + ' hrs' : (preset.id === 'off' ? '0 hrs' : 'Custom')}
+          </div>
+        `;
+        btn.onclick = () => {
+          activeEdit.selectedPreset = preset.id;
+          renderShiftPresetButtons();
+          updateCustomVisibility();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function updateCustomVisibility() {
+      const customBox = document.getElementById("customTimeBox");
+      if (activeEdit.selectedPreset === "custom") {
+        customBox.style.display = "block";
+        document.getElementById("customStart").value = activeEdit.customStart;
+        document.getElementById("customEnd").value = activeEdit.customEnd;
+        updateCustomPreview();
+      } else {
+        customBox.style.display = "none";
+      }
+    }
+
+    function calculateDurationHours(startStr, endStr) {
+      if (!startStr || !endStr) return 0;
+      const [sH, sM] = startStr.split(":").map(Number);
+      const [eH, eM] = endStr.split(":").map(Number);
+      let diffMinutes = (eH * 60 + eM) - (sH * 60 + sM);
+      if (diffMinutes < 0) diffMinutes += 24 * 60; // crossover midnight
+      return Math.round((diffMinutes / 60) * 10) / 10;
+    }
+
+    function formatTime12(time24) {
+      if (!time24) return "";
+      const [h, m] = time24.split(":").map(Number);
+      const suffix = h >= 12 ? "PM" : "AM";
+      const h12 = h % 12 || 12;
+      const mStr = m < 10 ? "0" + m : m;
+      return `${h12}:${mStr} ${suffix}`;
+    }
+
+    function updateCustomPreview() {
+      const start = document.getElementById("customStart").value;
+      const end = document.getElementById("customEnd").value;
+      const hrs = calculateDurationHours(start, end);
+      activeEdit.customStart = start;
+      activeEdit.customEnd = end;
+      document.getElementById("customHoursPreview").textContent = 
+        `Calculated: ${hrs} hours (${formatTime12(start)} – ${formatTime12(end)})`;
+    }
+
+    function saveActiveShift() {
+      const { empId, dayIndex, selectedPreset } = activeEdit;
+      const preset = getPresetById(selectedPreset);
+
+      if (selectedPreset === "custom") {
+        const start = document.getElementById("customStart").value;
+        const end = document.getElementById("customEnd").value;
+        const hrs = calculateDurationHours(start, end);
+
+        if (hrs <= 0) {
+          showToast("Please enter a valid start and end time.", "⚠️");
+          return;
+        }
+
+        appState.schedule[empId][dayIndex] = {
+          type: "custom",
+          hours: hrs,
+          timeStr: `${formatTime12(start)} – ${formatTime12(end)}`,
+          customStart: start,
+          customEnd: end
+        };
+      } else {
+        appState.schedule[empId][dayIndex] = {
+          type: preset.id,
+          hours: preset.hours,
+          timeStr: preset.time
+        };
+      }
+
+      closeShiftModal();
+      renderAll();
+      showToast("Shift updated successfully!", "✓");
+    }
+
+    function closeShiftModal() {
+      document.getElementById("shiftModal").classList.remove("open");
+    }
+
+    // Modal Operations for Renaming Employee
+    function openRenameModal(empId) {
+      activeRenameEmpId = empId;
+      const emp = appState.employees.find(e => e.id === empId);
+      const input = document.getElementById("renameInput");
+      input.value = emp.name;
+      document.getElementById("renameErrorMsg").style.display = "none";
+      document.getElementById("renameModal").classList.add("open");
+      setTimeout(() => input.focus(), 100);
+    }
+
+    function submitEmployeeRename() {
+      const input = document.getElementById("renameInput");
+      const newName = input.value.trim();
+      const errorMsg = document.getElementById("renameErrorMsg");
+
+      if (newName.length < 2) {
+        errorMsg.style.display = "block";
+        errorMsg.textContent = "Friendly note: Please enter a name with at least 2 letters.";
+        input.focus();
+        return;
+      }
+
+      const emp = appState.employees.find(e => e.id === activeRenameEmpId);
+      if (emp) {
+        emp.name = newName;
+        closeRenameModal();
+        renderAll();
+        showToast(`Employee name updated to ${newName}!`, "✓");
+      }
+    }
+
+    function closeRenameModal() {
+      document.getElementById("renameModal").classList.remove("open");
+      activeRenameEmpId = null;
+    }
+
+    function handleBackdropClick(event) {
+      if (event.target.classList.contains("modal-backdrop")) {
+        closeShiftModal();
+        closeRenameModal();
+      }
+    }
+
+    // Auto Fill Balanced Example Template
+    function fillBalancedTemplate() {
+      // 5 employees, standard small store retail pattern (2-3 staff per day, ~30-36 hrs each)
+      // Template mapping:
+      // Alex: Mon (Morn), Tue (Morn), Wed (Full), Thu (Off), Fri (Morn), Sat (Full), Sun (Off) -> 32h
+      // Jordan: Mon (Aft), Tue (Aft), Wed (Off), Thu (Full), Fri (Aft), Sat (Off), Sun (Full) -> 32h
+      // Taylor: Mon (Full), Tue (Off), Wed (Morn), Thu (Morn), Fri (Full), Sat (Aft), Sun (Off) -> 34h
+      // Morgan: Mon (Off), Tue (Full), Wed (Aft), Thu (Aft), Fri (Off), Sat (Morn), Sun (Morn) -> 32h
+      // Sam: Mon (Off), Tue (Off), Wed (Full), Thu (Off), Fri (Full), Sat (Full), Sun (Aft) -> 30h
+
+      const template = {
+        emp_1: ["morning", "morning", "full", "off", "morning", "full", "off"],
+        emp_2: ["afternoon", "afternoon", "off", "full", "afternoon", "off", "full"],
+        emp_3: ["full", "off", "morning", "morning", "full", "afternoon", "off"],
+        emp_4: ["off", "full", "afternoon", "afternoon", "off", "morning", "morning"],
+        emp_5: ["off", "off", "full", "off", "full", "full", "afternoon"]
+      };
+
+      appState.employees.forEach((emp, empIdx) => {
+        const shifts = template[emp.id] || template[`emp_${empIdx+1}`];
+        for (let d = 0; d < 7; d++) {
+          const type = shifts[d];
+          const preset = getPresetById(type);
+          appState.schedule[emp.id][d] = {
+            type: preset.id,
+            hours: preset.hours,
+            timeStr: preset.time
+          };
+        }
+      });
+
+      renderAll();
+      showToast("Balanced template schedule loaded!", "⚡");
+    }
+
+    function confirmResetSchedule() {
+      if (confirm(`Would you like to clear all shifts for the week of ${appState.weekStartDate}? (Employee names and other weeks will be kept)`)) {
+        const curSchedule = getCurrentWeekSchedule();
+        appState.employees.forEach(emp => {
+          for (let d = 0; d < 7; d++) {
+            curSchedule[emp.id][d] = {
+              type: "off",
+              hours: 0,
+              timeStr: "—"
+            };
+          }
+        });
+        renderAll();
+        showToast(`Shifts for week of ${appState.weekStartDate} have been reset to Off.`, "ℹ️");
+      }
+    }
+
+    // Text Export for WhatsApp / SMS / Email
+    function copyScheduleSummary() {
+      const weekDates = getWeekDates();
+      let text = `📅 STORE SHIFT ROSTER - WEEK OF ${appState.weekStartDate}\n`;
+      text += `--------------------------------------------\n`;
+
+      for (let d = 0; d < 7; d++) {
+        text += `\n📌 ${DAYS_OF_WEEK[d]} (${formatShortDate(weekDates[d])}):\n`;
+        let workingStaff = [];
+        appState.employees.forEach(emp => {
+          const shift = appState.schedule[emp.id][d];
+          if (shift && shift.type !== "off" && shift.hours > 0) {
+            const preset = getPresetById(shift.type);
+            workingStaff.push(`  • ${emp.name}: ${preset.label} (${shift.timeStr})`);
+          }
+        });
+
+        if (workingStaff.length > 0) {
+          text += workingStaff.join("\n") + "\n";
+        } else {
+          text += `  • (No staff scheduled / Store Closed)\n`;
+        }
+      }
+
+      text += `\n--------------------------------------------\n`;
+      text += `HOURS TOTALS:\n`;
+      appState.employees.forEach(emp => {
+        text += `• ${emp.name}: ${getEmployeeWeeklyHours(emp.id)} hrs\n`;
+      });
+
+      // Use clipboard API with fallback
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast("Roster copied to clipboard! Ready to share.", "📋");
+        }).catch(() => {
+          fallbackCopyText(text);
+        });
+      } else {
+        fallbackCopyText(text);
+      }
+    }
+
+    function fallbackCopyText(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        showToast("Roster copied to clipboard!", "📋");
+      } catch (err) {
+        alert("Here is your roster:\n\n" + text);
+      }
+      document.body.removeChild(textarea);
+    }
+
+    function handleWeekStartDateChange(newDate) {
+      if (!newDate) return;
+      const normalizedDate = getMondayOfDate(newDate);
+      appState.weekStartDate = normalizedDate;
+
+      const dateInput = document.getElementById("weekStartDate");
+      if (dateInput && dateInput.value !== normalizedDate) {
+        dateInput.value = normalizedDate;
+      }
+
+      // Check if this week already had data
+      const isNewWeek = !appState.weeklySchedules || !appState.weeklySchedules[normalizedDate];
+
+      // Access or initialize current week
+      getCurrentWeekSchedule();
+
+      renderAll();
+
+      if (isNewWeek) {
+        showToast(`New week (${normalizedDate}) ready with no scheduled shifts.`, "📅");
+      } else {
+        showToast(`Loaded schedule for week of ${normalizedDate}.`, "📅");
+      }
+    }
+
+    function navigateWeek(weeksOffset) {
+      const parts = appState.weekStartDate.split("-");
+      const currentMon = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      currentMon.setDate(currentMon.getDate() + (weeksOffset * 7));
+      const newDateStr = getMondayOfDate(currentMon);
+      handleWeekStartDateChange(newDateStr);
+    }
+
+    function copyFromPreviousWeek() {
+      const parts = appState.weekStartDate.split("-");
+      const currentMon = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      currentMon.setDate(currentMon.getDate() - 7);
+      const prevDateStr = getMondayOfDate(currentMon);
+
+      const prevSchedule = appState.weeklySchedules?.[prevDateStr];
+      if (!prevSchedule) {
+        showToast(`Friendly note: No schedule found for the prior week (${prevDateStr}) to copy.`, "ℹ️");
+        return;
+      }
+
+      // Check if current week already has hours
+      const curSchedule = getCurrentWeekSchedule();
+      let hasExistingHours = false;
+      appState.employees.forEach(emp => {
+        for (let d = 0; d < 7; d++) {
+          if (curSchedule[emp.id]?.[d]?.hours > 0) hasExistingHours = true;
+        }
+      });
+
+      if (hasExistingHours && !confirm(`The week of ${appState.weekStartDate} already has scheduled shifts. Overwrite them with shifts from week of ${prevDateStr}?`)) {
+        return;
+      }
+
+      // Deep copy previous week's shifts
+      appState.employees.forEach(emp => {
+        for (let d = 0; d < 7; d++) {
+          const srcShift = prevSchedule[emp.id]?.[d] || { type: "off", hours: 0, timeStr: "—" };
+          curSchedule[emp.id][d] = JSON.parse(JSON.stringify(srcShift));
+        }
+      });
+
+      renderAll();
+      showToast(`Copied schedule from week of ${prevDateStr}!`, "📋");
+    }
+
+    function switchView(mode) {
+      const btnMobile = document.getElementById("viewBtnMobile");
+      const btnMatrix = document.getElementById("viewBtnMatrix");
+      const container = document.body;
+
+      if (mode === "matrix") {
+        btnMatrix.classList.add("active");
+        btnMobile.classList.remove("active");
+        container.classList.add("desktop-view-active");
+      } else {
+        btnMobile.classList.add("active");
+        btnMatrix.classList.remove("active");
+        container.classList.remove("desktop-view-active");
+      }
+    }
+
+    // Helpers
+    function getPresetById(id) {
+      return PRESET_SHIFTS.find(p => p.id === id) || PRESET_SHIFTS[0];
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function showToast(message, icon = "ℹ️") {
+      const toast = document.getElementById("toast");
+      document.getElementById("toastIcon").textContent = icon;
+      document.getElementById("toastText").textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3500);
+    }
+
+    // Keyboard support: Escape closes modals
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeShiftModal();
+        closeRenameModal();
+      }
+      if (e.key === "Enter" && activeRenameEmpId) {
+        submitEmployeeRename();
+      }
+    });
+
+    // Start application on load
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
